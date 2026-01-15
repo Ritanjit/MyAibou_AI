@@ -61,7 +61,7 @@ export async function generatePersonaInstruction(
     mode: PersonaMode = "hella_real"
 ): Promise<string> {
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
         safetySettings: getSafetySettings(mode)
     });
 
@@ -107,7 +107,7 @@ export async function chatWithCharacter(
     const fullInstruction = `${systemInstruction}\n\n[CURRENT MODE: ${mode.toUpperCase()}]\n${getModeDescription(mode)}`;
 
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
         systemInstruction: fullInstruction,
         safetySettings: getSafetySettings(mode)
     });
