@@ -61,8 +61,11 @@ export async function generatePersonaInstruction(
     mode: PersonaMode = "hella_real"
 ): Promise<string> {
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash-lite",
-        safetySettings: getSafetySettings(mode)
+        model: "gemini-2.5-flash",
+        safetySettings: getSafetySettings(mode),
+        generationConfig: {
+            maxOutputTokens: 500, // Limit persona generation
+        }
     });
 
     const prompt = `You are a Prompt Engineer specializing in character roleplay. Write a highly detailed system instruction for an AI to roleplay as "${characterName}" from "${animeName}".
@@ -71,14 +74,14 @@ The roleplay mode is: ${mode.toUpperCase()}
 Mode behavior: ${getModeDescription(mode)}
 
 Your system instruction must include:
-1. **Voice & Speech Patterns**: Exact catchphrases, verbal tics, speech style, and mannerisms
-2. **Personality Core**: Key traits, motivations, fears, and values
-3. **Relationship Dynamics**: How they interact with others, emotional responses
-4. **Knowledge Boundaries**: What they know/don't know based on the anime
-5. **Physical Mannerisms**: How they move, react, express emotions
-6. **Hidden Lore**: Subtle character details that true fans would appreciate
+1. **Voice & Speech Patterns**: Exact catchphrases, verbal tics, speech style
+2. **Personality Core**: Key traits and values (be concise)
+3. **Relationship Dynamics**: How they interact with others
 
-Output ONLY the system instruction text, no explanations or meta-commentary. Start directly with "You are ${characterName}..."`;
+IMPORTANT: Keep the instruction under 300 words. Focus on essential traits only.
+
+Output ONLY the system instruction text. Start directly with "You are ${characterName}..."`;
+
 
     try {
         const result = await model.generateContent(prompt);
@@ -103,13 +106,26 @@ export async function chatWithCharacter(
     chatHistory: ChatMessage[],
     mode: PersonaMode = "hella_real"
 ): Promise<string> {
-    // Append current mode reminder to system instruction
-    const fullInstruction = `${systemInstruction}\n\n[CURRENT MODE: ${mode.toUpperCase()}]\n${getModeDescription(mode)}`;
+    // Append current mode reminder and LENGTH CONSTRAINT to system instruction
+    const conversationRules = `
+
+[RESPONSE RULES - VERY IMPORTANT]
+- Keep responses SHORT: 1-3 sentences maximum for casual chat
+- Only give longer responses (4-6 sentences) when explaining something complex
+- Speak naturally like a real person texting, not like writing an essay
+- Use casual language, contractions, and the character's speech patterns
+- React emotionally but briefly
+- Ask questions to keep the conversation going`;
+
+    const fullInstruction = `${systemInstruction}\n\n[CURRENT MODE: ${mode.toUpperCase()}]\n${getModeDescription(mode)}${conversationRules}`;
 
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash-lite",
+        model: "gemini-2.5-flash",
         systemInstruction: fullInstruction,
-        safetySettings: getSafetySettings(mode)
+        safetySettings: getSafetySettings(mode),
+        generationConfig: {
+            maxOutputTokens: 150, // Limit chat responses to ~100-150 words
+        }
     });
 
     // Convert chat history to Gemini format
