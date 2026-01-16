@@ -23,6 +23,7 @@ const HomePage = () => {
   });
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [showMuteButton, setShowMuteButton] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -46,13 +47,18 @@ const HomePage = () => {
   // Play music when model loads and we're on landing page
   useEffect(() => {
     if (isModelLoaded && appState === "landing") {
+      // Show mute button immediately so user can interact
+      setShowMuteButton(true);
+      
       // Add a small delay for smoother transition from preloader
       const playDelay = setTimeout(() => {
         if (audioRef.current) {
-          audioRef.current.play().catch(err => {
-            console.log("Audio autoplay blocked:", err);
-          });
-          setShowMuteButton(true);
+          audioRef.current.play()
+            .then(() => setIsPlaying(true))
+            .catch(err => {
+              console.log("Audio autoplay blocked:", err);
+              setIsPlaying(false);
+            });
         }
       }, 1000);
 
@@ -73,9 +79,12 @@ const HomePage = () => {
   useEffect(() => {
     if (appState === "landing" && isModelLoaded && audioRef.current && audioRef.current.paused) {
       audioRef.current.volume = 0.5;
-      audioRef.current.play().catch(err => {
-        console.log("Audio play blocked:", err);
-      });
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(err => {
+          console.log("Audio play blocked:", err);
+          setIsPlaying(false);
+        });
     }
   }, [appState, isModelLoaded]);
 
@@ -135,23 +144,91 @@ const HomePage = () => {
         />
       </div>
 
-      {/* Mute/Unmute button - Fixed position */}
+      {/* Mute/Unmute button - Fixed position with attention-grabbing animation */}
       <AnimatePresence>
         {showMuteButton && appState === "landing" && (
-          <motion.button
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={toggleMute}
-            className="fixed top-6 right-6 z-30 p-3 bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-sm border border-purple-500/30 rounded-full text-white transition-all duration-300 cursor-pointer shadow-lg"
-            title={isMuted ? "Unmute" : "Mute"}
+            className="fixed top-6 right-6 z-30"
           >
-            {isMuted ? (
-              <VolumeX className="w-5 h-5" />
-            ) : (
-              <Volume2 className="w-5 h-5" />
+            {/* Pulsing ripple rings - only show when audio is NOT playing */}
+            {!isPlaying && (
+              <>
+                <motion.div
+                  className="absolute inset-0 rounded-full border-2 border-purple-400"
+                  animate={{
+                    scale: [1, 1.8, 2.2],
+                    opacity: [0.6, 0.3, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeOut",
+                  }}
+                />
+                <motion.div
+                  className="absolute inset-0 rounded-full border-2 border-pink-400"
+                  animate={{
+                    scale: [1, 1.6, 2],
+                    opacity: [0.5, 0.2, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: 0.5,
+                    ease: "easeOut",
+                  }}
+                />
+              </>
             )}
-          </motion.button>
+            
+            <motion.button
+              onClick={() => {
+                // If audio isn't playing, play it
+                if (audioRef.current && !isPlaying) {
+                  audioRef.current.muted = false;
+                  setIsMuted(false);
+                  audioRef.current.play()
+                    .then(() => setIsPlaying(true))
+                    .catch(console.error);
+                } else {
+                  // Toggle mute if already playing
+                  toggleMute();
+                }
+              }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              animate={!isPlaying ? {
+                boxShadow: [
+                  "0 0 0 0 rgba(168, 85, 247, 0.4)",
+                  "0 0 20px 10px rgba(168, 85, 247, 0.2)",
+                  "0 0 0 0 rgba(168, 85, 247, 0.4)",
+                ],
+              } : {}}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="relative p-3 bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-sm border border-purple-500/50 rounded-full text-white transition-all duration-300 cursor-pointer shadow-lg"
+              title={!isPlaying ? "Click to play music 🎵" : (isMuted ? "Unmute" : "Mute")}
+            >
+              {!isPlaying || isMuted ? (
+                <VolumeX className="w-5 h-5 text-purple-300" />
+              ) : (
+                <Volume2 className="w-5 h-5" />
+              )}
+            </motion.button>
+            
+            {/* "Click to play" hint text */}
+            {!isPlaying && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute -bottom-8 right-0 text-xs text-purple-300 whitespace-nowrap bg-gray-900/80 px-2 py-1 rounded"
+              >
+                🎵 Click for music
+              </motion.p>
+            )}
+          </motion.div>
         )}
       </AnimatePresence>
 

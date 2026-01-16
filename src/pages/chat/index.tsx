@@ -12,7 +12,7 @@ import {
     generatePersonaInstruction,
     chatWithCharacter,
     ChatMessage
-} from "@/services/gemini";
+} from "@/services/ai";
 import {
     loadChatByPath,
     saveChat,
@@ -209,7 +209,8 @@ const ChatPage = () => {
     };
 
     const handleBack = () => {
-        navigate("/");
+        // Go back to the previous page in history (could be home or anime-collection)
+        navigate(-1);
     };
 
     // Show loading state while restoring

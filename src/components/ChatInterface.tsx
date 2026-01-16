@@ -11,7 +11,7 @@ import {
     generatePersonaInstruction,
     chatWithCharacter,
     ChatMessage
-} from "@/services/gemini";
+} from "@/services/ai";
 
 interface ChatInterfaceProps {
     characterName: string;
@@ -232,8 +232,8 @@ const ChatInterface = ({ characterName, animeName, onBack }: ChatInterfaceProps)
                         >
                             <div
                                 className={`max-w-[80%] px-4 py-3 rounded-2xl ${msg.role === "user"
-                                        ? "bg-purple-600 text-white rounded-br-md"
-                                        : "bg-gray-800 text-gray-100 rounded-bl-md border border-gray-700"
+                                    ? "bg-purple-600 text-white rounded-br-md"
+                                    : "bg-gray-800 text-gray-100 rounded-bl-md border border-gray-700"
                                     }`}
                             >
                                 <div className="prose prose-invert prose-sm max-w-none">

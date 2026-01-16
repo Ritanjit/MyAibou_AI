@@ -1,7 +1,7 @@
 // Chat Storage Service - LocalStorage persistence for chat history
 // Stores conversations per character for offline access
 
-import { ChatMessage } from "./gemini";
+import { ChatMessage } from "./ai";
 
 interface StoredChat {
     characterName: string;
