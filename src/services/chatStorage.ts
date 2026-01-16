@@ -199,3 +199,32 @@ export const getAllChats = (): StoredChat[] => {
         return [];
     }
 };
+
+// ============================================
+// Intro Preloader First-Visit Tracking
+// ============================================
+
+const INTRO_SEEN_KEY = "myaibou_intro_seen";
+
+/**
+ * Check if the user has seen the intro preloader
+ */
+export const hasSeenIntro = (): boolean => {
+    try {
+        return localStorage.getItem(INTRO_SEEN_KEY) === "true";
+    } catch (error) {
+        console.error("Failed to check intro seen status:", error);
+        return false;
+    }
+};
+
+/**
+ * Mark the intro preloader as seen (call after preloader completes)
+ */
+export const markIntroAsSeen = (): void => {
+    try {
+        localStorage.setItem(INTRO_SEEN_KEY, "true");
+    } catch (error) {
+        console.error("Failed to mark intro as seen:", error);
+    }
+};

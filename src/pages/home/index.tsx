@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, MessageCircle, Heart, Users, Volume2, VolumeX } from "lucide-react";
 import PreLoader from "@/components/PreLoader";
 import CharacterSelect from "@/components/CharacterSelect";
-import { getCharacterPath } from "@/services/chatStorage";
+import { getCharacterPath, hasSeenIntro, markIntroAsSeen } from "@/services/chatStorage";
 
 // Import the landing page background music
 import kawaiSong from "@/assets/songs/kawai.mp3";
@@ -17,7 +17,10 @@ type AppState = "loading" | "landing" | "selecting";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [appState, setAppState] = useState<AppState>("loading");
+  // Check localStorage on initial render - skip preloader if user has seen it before
+  const [appState, setAppState] = useState<AppState>(() => {
+    return hasSeenIntro() ? "landing" : "loading";
+  });
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showMuteButton, setShowMuteButton] = useState(false);
@@ -77,6 +80,8 @@ const HomePage = () => {
   }, [appState, isModelLoaded]);
 
   const handlePreLoaderComplete = () => {
+    // Mark intro as seen so it won't show on subsequent visits
+    markIntroAsSeen();
     setAppState("landing");
   };
 
@@ -214,7 +219,7 @@ const HomePage = () => {
               >
                 {[
                   { icon: Heart, label: "Waifu Mode" },
-                  { icon: Users, label: "15+ Anime Series" },
+                  { icon: Users, label: "60+ Characters" },
                   { icon: Sparkles, label: "Dynamic Personas" }
                 ].map((feature, idx) => (
                   <div
@@ -225,6 +230,21 @@ const HomePage = () => {
                     <span className="text-gray-300 text-sm">{feature.label}</span>
                   </div>
                 ))}
+              </motion.div>
+
+              {/* Browse Collection Link */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="mt-6"
+              >
+                <button
+                  onClick={() => navigate("/anime-collection")}
+                  className="text-purple-400 hover:text-purple-300 text-sm font-medium underline underline-offset-4 decoration-purple-500/30 hover:decoration-purple-400/50 transition-all cursor-pointer"
+                >
+                  Browse Full Collection →
+                </button>
               </motion.div>
             </motion.div>
 
