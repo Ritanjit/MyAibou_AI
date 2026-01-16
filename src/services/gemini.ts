@@ -64,7 +64,7 @@ export async function generatePersonaInstruction(
         model: "gemini-2.5-flash",
         safetySettings: getSafetySettings(mode),
         generationConfig: {
-            maxOutputTokens: 500, // Limit persona generation
+            maxOutputTokens: 1000, // Limit persona generation
         }
     });
 
@@ -124,7 +124,7 @@ export async function chatWithCharacter(
         systemInstruction: fullInstruction,
         safetySettings: getSafetySettings(mode),
         generationConfig: {
-            maxOutputTokens: 150, // Limit chat responses to ~100-150 words
+            maxOutputTokens: 500, // Limit chat responses to ~100-150 words
         }
     });
 
