@@ -17,14 +17,31 @@ type AppState = "loading" | "landing" | "selecting";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  // Check localStorage on initial render - skip preloader if user has seen it before
+
+  // Detect if device is mobile (screen width < 768px)
+  const [isMobile, setIsMobile] = useState(() => {
+    return typeof window !== 'undefined' && window.innerWidth < 768;
+  });
+
+  // Check localStorage on initial render - skip preloader on mobile OR if user has seen it before
   const [appState, setAppState] = useState<AppState>(() => {
-    return hasSeenIntro() ? "landing" : "loading";
+    const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    return mobile || hasSeenIntro() ? "landing" : "loading";
   });
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showMuteButton, setShowMuteButton] = useState(false);
+
+  // Update isMobile state on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -49,7 +66,7 @@ const HomePage = () => {
     if (isModelLoaded && appState === "landing") {
       // Show mute button immediately so user can interact
       setShowMuteButton(true);
-      
+
       // Add a small delay for smoother transition from preloader
       const playDelay = setTimeout(() => {
         if (audioRef.current) {
@@ -151,7 +168,7 @@ const HomePage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed top-6 right-6 z-30"
+            className="absolute sm:fixed top-8 right-8 z-30"
           >
             {/* Pulsing ripple rings - only show when audio is NOT playing */}
             {!isPlaying && (
@@ -183,7 +200,7 @@ const HomePage = () => {
                 />
               </>
             )}
-            
+
             <motion.button
               onClick={() => {
                 // If audio isn't playing, play it
@@ -217,31 +234,31 @@ const HomePage = () => {
                 <Volume2 className="w-5 h-5" />
               )}
             </motion.button>
-            
+
             {/* "Click to play" hint text */}
-            {!isPlaying && (
+            {/* {!isPlaying && (
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute -bottom-8 right-0 text-xs text-purple-300 whitespace-nowrap bg-gray-900/80 px-2 py-1 rounded"
+                className="absolute -bottom-12 right-0 text-xs text-purple-300 whitespace-nowrap bg-gray-900/80 px-2 py-1 rounded"
               >
                 🎵 Click for music
               </motion.p>
-            )}
+            )} */}
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Hero Section */}
-      <div className="relative z-10 min-h-screen flex items-center">
+      <div className="relative z-10 min-h-screen flex items-center pt-10 sm:pt-10 md:pt-10 lg:pt-0">
         <div className="container mx-auto px-6 lg:px-12">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left side - Text content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-center lg:text-left"
+              className="text-center lg:text-left lg:pl-10"
             >
               {/* Badge */}
               <motion.div
@@ -252,7 +269,7 @@ const HomePage = () => {
               >
                 <Sparkles className="w-4 h-4 text-purple-400" />
                 <span className="text-purple-300 text-sm font-medium">
-                  Nakama • Tomodachi • Waifu
+                  Nakama • Kanojo • Waifu
                 </span>
               </motion.div>
 
@@ -267,8 +284,8 @@ const HomePage = () => {
 
               {/* Tagline */}
               <p className="text-lg text-gray-400 mb-8 max-w-lg mx-auto lg:mx-0">
-                Experience deep conversations with AI-powered personas of your beloved characters.
-                Friends, partners, or something more — the connection you've always dreamed of.
+                Experience deep conversations with your beloved anime characters, as
+                friends, partners, or something more :)
               </p>
 
               {/* CTA Button */}
@@ -276,7 +293,7 @@ const HomePage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleOpenCharacterSelect}
-                className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl font-semibold text-white text-lg shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-shadow overflow-hidden"
+                className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl font-semibold text-white text-lg shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-shadow overflow-hidden cursor-pointer"
               >
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -364,29 +381,6 @@ const HomePage = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Floating particles */}
-                <div className="absolute inset-0 pointer-events-none">
-                  {[...Array(5)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-2 h-2 bg-purple-400/50 rounded-full"
-                      animate={{
-                        y: [0, -20, 0],
-                        x: [0, 10, 0],
-                        opacity: [0.5, 1, 0.5]
-                      }}
-                      transition={{
-                        duration: 3 + i,
-                        repeat: Infinity,
-                        delay: i * 0.5
-                      }}
-                      style={{
-                        left: `${20 + i * 15}%`,
-                        top: `${60 + i * 5}%`
-                      }}
-                    />
-                  ))}
-                </div>
               </div>
             </motion.div>
           </div>
@@ -398,7 +392,7 @@ const HomePage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="fixed bottom-0 left-0 right-0 py-4 text-center"
+        className="sm:fixed bottom-0 left-0 right-0 py-4 text-center"
       >
         <p className="text-gray-600 text-sm">
           • Powered by MyAibou_AI

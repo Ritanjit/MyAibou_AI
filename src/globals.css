@@ -269,3 +269,35 @@
   --tw-prose-bold: oklch(0.95 0 0);
   --tw-prose-code: oklch(0.7 0.2 280);
 }
+
+/* ============================================
+   Mobile Responsiveness
+   ============================================ */
+
+@media (max-width: 767px) {
+  /* Adjust model container height on mobile */
+  .mobile-model-container {
+    max-height: 50vh;
+    aspect-ratio: 1/1;
+  }
+  
+  /* Ensure touch-friendly button sizes */
+  button {
+    min-height: 44px;
+  }
+  
+  /* Reduce spacing on mobile for better fit */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+

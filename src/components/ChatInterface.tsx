@@ -108,7 +108,7 @@ const ChatInterface = ({ characterName, animeName, onBack }: ChatInterfaceProps)
     return (
         <div className="fixed inset-0 bg-gray-950 flex flex-col">
             {/* Header */}
-            <header className="flex-shrink-0 bg-gray-900/80 backdrop-blur-sm border-b border-purple-500/20 px-4 py-3">
+            <header className="flex-shrink-0 bg-gray-900/80 backdrop-blur-sm border-b border-purple-500/20 px-4 py-3 relative z-50">
                 <div className="flex items-center justify-between max-w-4xl mx-auto">
                     <div className="flex items-center gap-3">
                         <button
@@ -140,7 +140,7 @@ const ChatInterface = ({ characterName, animeName, onBack }: ChatInterfaceProps)
                     <div className="relative">
                         <button
                             onClick={() => setShowModeSelector(!showModeSelector)}
-                            className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors cursor-pointer"
                         >
                             <span className="text-lg">{modeDisplayNames[currentMode].emoji}</span>
                             <span className="text-sm text-gray-300 hidden sm:inline">
@@ -155,7 +155,7 @@ const ChatInterface = ({ characterName, animeName, onBack }: ChatInterfaceProps)
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
-                                    className="absolute right-0 mt-2 w-64 bg-gray-800 rounded-xl border border-gray-700 shadow-xl overflow-hidden z-20"
+                                    className="absolute right-0 mt-2 w-64 bg-gray-800 rounded-xl border border-gray-700 shadow-xl overflow-hidden z-50"
                                 >
                                     {(Object.keys(modeDisplayNames) as PersonaMode[]).map(mode => (
                                         <button
